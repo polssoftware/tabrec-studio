@@ -1,6 +1,0 @@
-Tabre Studio uses React, React DOM, lucide-react, fflate, and @breezystack/lamejs.
-Dependency notices are available in the licenses directory.
-MP3 encoding uses LAME/lamejs under LGPL-3.0.
-Project: https://github.com/polssoftware
-
-Additional encoding dependencies: wasm-media-encoders (LAME MP3 and Ogg Vorbis), libflacjs (libFLAC), and @swc/helpers. See licenses/ for their notices.

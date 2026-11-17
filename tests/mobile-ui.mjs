@@ -1,0 +1,41 @@
+const listeners=new Map();
+import React from 'react';
+import {create,act} from 'react-test-renderer';
+import assert from 'node:assert/strict';
+globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+let animationFrame;globalThis.requestAnimationFrame=fn=>{animationFrame=fn;return 1;};globalThis.cancelAnimationFrame=()=>{};
+globalThis.localStorage={getItem:()=>null,setItem(){}};
+globalThis.window={innerWidth:390,innerHeight:844,addEventListener(type,fn){if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(fn);},removeEventListener(type,fn){listeners.get(type)?.delete(fn);}};
+let activeContext,sourcesPlayed=0;const timelineView={clientWidth:400,scrollLeft:0},streams=[],recorders=[];
+Object.defineProperty(globalThis,'navigator',{configurable:true,value:{mediaDevices:{enumerateDevices:async()=>[],getUserMedia:async()=>{const stream={stopped:false,getTracks(){return [{stop:()=>{stream.stopped=true;}}];}};streams.push(stream);return stream;}}}});
+function node(){const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},linearRampToValueAtTime(){},cancelScheduledValues(){},setTargetAtTime(){}});return {gain:param(),pan:param(),frequency:param(),connect:to=>to,disconnect(){},start(){},stop(){},getFloatTimeDomainData(data){data.fill(0);}};}
+globalThis.AudioContext=class{constructor(){activeContext=this;this.currentTime=0;this.sampleRate=48000;this.destination=node();this.audioWorklet={addModule:async()=>{}};}async resume(){}createBuffer(channels,length,sampleRate){const data=Array.from({length:channels},()=>new Float32Array(length));return {numberOfChannels:channels,length,sampleRate,duration:length/sampleRate,getChannelData:c=>data[c]};}createBufferSource(){const result=node();result.start=()=>sourcesPlayed++;return result;}createGain(){return node();}createStereoPanner(){return node();}createAnalyser(){return node();}createChannelSplitter(){const splitter=node();Object.defineProperty(splitter,'channelInterpretation',{get:()=> 'discrete',set:value=>{if(value!=='discrete')throw Error('InvalidStateError: splitter interpretation is fixed');}});return splitter;}createChannelMerger(){return node();}createMediaStreamSource(){return node();}createOscillator(){return node();}};
+const {defaults}=await import('../src/audio.js');
+globalThis.AudioWorkletNode=class{constructor(ctx,name){this.parameters=new Map(Object.entries({...defaults(),soloBand:0,listen:0,mask:4095}).map(([key,value])=>[key,{value,setTargetAtTime(v){this.value=v;},cancelScheduledValues(){}}]));if(name==='local-recorder')recorders.push(this);this.messages=[];this.port={onmessage:null,postMessage:message=>{this.messages.push(message);if(message==='stop')queueMicrotask(()=>this.port.onmessage?.({data:{done:true}}));}};}connect(to){return to;}disconnect(){}};
+globalThis.devicePixelRatio=1;
+const canvas={clientWidth:100,clientHeight:49,getContext:()=>({scale(){},beginPath(){},moveTo(){},lineTo(){},stroke(){}})};
+
+const mediaListeners=new Set(),media={matches:true,addEventListener(type,fn){mediaListeners.add(fn);},removeEventListener(type,fn){mediaListeners.delete(fn);}};window.matchMedia=()=>media;
+AudioContext.prototype.createConvolver=()=>node();
+AudioContext.prototype.decodeAudioData=async function(){const b=this.createBuffer(1,48000,48000);for(let i=0;i<b.length;i++)b.getChannelData(0)[i]=.2*Math.sin(i*.1);return b;};
+const {App}=await import('../.checks/ssr/main.js');let app;
+const fire=(type,event)=>{for(const fn of [...listeners.get(type)||[]])fn(event);};
+await act(async()=>{app=create(React.createElement(App),{createNodeMock:el=>el.props.className==='timeline-scroll'?timelineView:el.type==='canvas'?canvas:{click(){},getBoundingClientRect:()=>({left:0,top:0,bottom:40})}});});
+const root=app.root,text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(''):n?.children?text(n.children):'',buttons=()=>root.findByProps({className:'mobile-dock'}).findAllByType('button'),dockButton=label=>buttons().find(b=>b.props['aria-label']===label||text(b)===label),click=async b=>{assert.ok(b);await act(async()=>{await b.props.onClick({currentTarget:{getBoundingClientRect:()=>({left:0,top:100,bottom:140})}});});};
+try{
+ assert.ok(root.findByProps({className:'mobile-header'}));assert.equal(root.findAllByProps({className:'mixer-dock'}).length,0);assert.equal(root.findAllByProps({className:'bottom-panel'}).length,0);assert.equal(root.findAllByProps({className:'studio-brand'}).length,0);
+ assert.equal(root.findByProps({'aria-label':'Playlist time'}).children.join(''),'00:00.00');
+ await act(async()=>root.findByProps({'aria-label':'Audio files'}).props.onChange({target:{files:[{name:'beat.wav',arrayBuffer:async()=>new ArrayBuffer(8)}],value:'beat.wav'}}));
+ const rows=()=>root.findAllByType('div').filter(n=>n.props.className?.startsWith('track-row '));assert.equal(rows().length,2);assert.ok(rows().some(n=>text(n).includes('Lead')));assert.equal(root.findAllByType('div').filter(n=>n.props['data-clip-id']).length,1);assert.ok(rows().every(n=>n.props.style.height===72));
+ await click(dockButton('Effects'));assert.equal(root.findAllByProps({className:'bottom-panel'}).length,1);assert.equal(root.findAllByProps({className:'mixer-dock'}).length,0);
+ const add=root.findAllByType('button').find(b=>text(b)==='Add Effects');await click(add);await click(root.findAllByType('button').find(b=>text(b)==='Reverb'));assert.ok(root.findByProps({'aria-label':'Reverb Decay'}));
+ await click(dockButton('Mixer'));assert.equal(root.findAllByProps({className:'bottom-panel'}).length,0);assert.equal(root.findAllByProps({className:'mixer-dock'}).length,1);await click(dockButton('Mixer'));assert.equal(root.findAllByProps({className:'mixer-dock'}).length,0);
+ // Direct mobile recording starts on the empty Lead lane without arming then pressing Play.
+ await click(dockButton('Record vocals'));assert.equal(streams.length,1);assert.ok(root.findAllByProps({'aria-label':'Stop recording'}).length,text(root));const recorder=recorders.at(-1);await act(async()=>recorder.port.onmessage({data:{channels:[new Float32Array(128).fill(.1),new Float32Array(128).fill(.1)]}}));await click(dockButton('Stop recording'));assert.equal(streams[0].stopped,true);assert.equal(root.findAllByType('div').filter(n=>n.props['data-clip-id']).length,2);
+ // A touch drag moves a clip; cancellation restores its original location.
+ const clip=root.findAllByType('div').find(n=>n.props['data-clip-id']);const left=clip.props.style.left;await act(async()=>clip.props.onPointerDown({pointerType:'touch',pointerId:1,button:0,clientX:150,clientY:100,stopPropagation(){},preventDefault(){}}));await act(async()=>fire('pointermove',{clientX:178,clientY:100,shiftKey:true}));await act(async()=>fire('pointerup',{}));assert.equal(root.findByProps({'data-clip-id':clip.props['data-clip-id']}).props.style.left,left+28);await click(dockButton('Undo'));assert.equal(root.findByProps({'data-clip-id':clip.props['data-clip-id']}).props.style.left,left);
+ await click(dockButton('Zoom in'));await click(dockButton('Zoom out'));
+ // Switching back to desktop removes mobile controls and restores desktop panels.
+ await act(async()=>{media.matches=false;for(const fn of mediaListeners)fn();});assert.equal(root.findAllByProps({className:'mobile-header'}).length,0);assert.equal(root.findAllByProps({className:'mixer-dock'}).length,1);assert.ok(root.findByProps({className:'studio-brand'}));
+ console.log('Mobile UI checks passed: automatic layout, closed panels, beat import/empty Lead lane, effects, mixer, direct recording, touch drag/undo, zoom and desktop transition.');
+}finally{await act(async()=>app.unmount());}
