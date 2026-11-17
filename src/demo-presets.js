@@ -1,0 +1,3 @@
+import {defaults} from './audio.js';
+const effect=(type,params)=>({id:crypto.randomUUID(),type,enabled:true,params:{...defaults(),...params}});
+export function demoEffects(demo,part){if(demo===1)return part===0?[effect('distortion',{distDrive:4,distMix:10}),effect('tr1176',{trInput:0,trOutput:3,trAttack:.4,trRelease:120})]:part===1?[effect('distortion',{distMode:2,distDrive:3,distMix:10})]:[effect('chorus',{chorusMix:24}),effect('reverb',{mix:12,reverbDry:90,reverbStyle:1,decay:1.8})];return part===0?[effect('eq',{bass:-2,mid:1,treble:1}),effect('chorus',{chorusMix:12,chorusDepth:2})]:part===1?[effect('distortion',{distMode:0,distDrive:4,distMix:8,distTone:4000})]:[effect('compressor',{threshold:-16,ratio:2,attack:20,release:160}),effect('clipper',{clipThreshold:-1})];}

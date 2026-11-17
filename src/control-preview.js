@@ -1,0 +1,2 @@
+export function previewText({value,min=0,max=100,unit=''}){const percent=max>min?Math.round((value-min)/(max-min)*100):0;const display=Number(value.toFixed(2))+unit;return unit==='%'&&min===0&&max===100?display:display+' · '+percent+'%';}
+export function emitControlPreview(detail,view=globalThis.window){if(view?.dispatchEvent&&typeof CustomEvent!=='undefined')view.dispatchEvent(new CustomEvent('tabrec-control-preview',{detail}));}
