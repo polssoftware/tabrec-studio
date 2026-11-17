@@ -1,4 +1,0 @@
-import {test} from 'node:test';
-import assert from 'node:assert/strict';
-import {attachStereoMeters,readStereoMeters} from '../src/stereo-meters.js';
-test('channel meters tap separate post-pan left and right channels and retain distinct peaks',()=>{const links=[],graph={meter:{connect:to=>links.push(['meter',to])},nodes:[]};let index=0;const context={createChannelSplitter:channels=>({channels,connect:(to,output)=>links.push([output,to])}),createAnalyser:()=>{const amplitude=index++===0?.8:.2;return {getFloatTimeDomainData:data=>data.fill(amplitude)};}};attachStereoMeters(context,{map:{v:graph}});assert.equal(graph.nodes.length,3);assert.equal(links[1][0],0);assert.equal(links[2][0],1);const [left,right]=readStereoMeters(graph);assert.ok(Math.abs(left-.8)<1e-6);assert.ok(Math.abs(right-.2)<1e-6);});

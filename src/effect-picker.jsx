@@ -1,9 +1,0 @@
-import React,{useEffect,useRef,useState} from 'react';
-import {createPortal} from 'react-dom';
-export function EffectPicker({entries,onSelect,onClose,anchor}){
- const ref=useRef(null),[query,setQuery]=useState(''),[placement,setPlacement]=useState({left:12,top:60,height:360}),[host,setHost]=useState(null);
- useEffect(()=>{const node=ref.current,view=node?.ownerDocument?.defaultView||window,panel=node?.closest?.('.effects');function position(){const rect=panel?.getBoundingClientRect?.(),wanted=Math.min(420,view.innerHeight-24),x=anchor?.x??rect?.left??12,y=anchor?.y??rect?.top??view.innerHeight-40,below=view.innerHeight-y-20,openBelow=below>=Math.min(wanted,240),height=openBelow?Math.min(wanted,below):Math.min(wanted,Math.max(120,y-20)),top=openBelow?y+8:Math.max(12,Math.min(view.innerHeight-height-12,y-height-8));setPlacement({left:Math.max(12,Math.min(view.innerWidth-242,x+8)),top,height});}setHost(node?.closest?.('.app')||null);position();view.addEventListener('resize',position);return()=>view.removeEventListener('resize',position);},[anchor]);
- const filtered=entries.filter(([,name])=>name.toLowerCase().includes(query.trim().toLowerCase()));
- const content=<div ref={ref} className="effect-picker" role="dialog" aria-label="Add effects" style={{position:'fixed',left:placement.left,top:placement.top,maxHeight:placement.height}} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();onClose();}}}><h3 className="effect-picker-title">Effects Menu</h3><input autoFocus type="search" aria-label="Search effects" placeholder="Search effects..." value={query} onChange={e=>setQuery(e.target.value)}/><div className="effect-picker-results">{filtered.map(([key,name])=><button key={key} onClick={()=>onSelect(key)}>{name}</button>)}{!filtered.length&&<p>No effects found.</p>}</div></div>;
- return host?createPortal(content,host):content;
-}
