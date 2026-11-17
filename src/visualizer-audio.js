@@ -1,0 +1,2 @@
+export function stereoLevels(left,right){let peakL=0,peakR=0,sumL=0,sumR=0,cross=0;for(let i=0;i<left.length;i++){const l=left[i]||0,r=right[i]||0;peakL=Math.max(peakL,Math.abs(l));peakR=Math.max(peakR,Math.abs(r));sumL+=l*l;sumR+=r*r;cross+=l*r;}const n=left.length||1;return {peakL,peakR,rmsL:Math.sqrt(sumL/n),rmsR:Math.sqrt(sumR/n),correlation:sumL*sumR>1e-18?cross/Math.sqrt(sumL*sumR):null};}
+export const toDb=value=>value>1e-6?20*Math.log10(value):-Infinity;

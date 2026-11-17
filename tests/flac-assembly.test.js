@@ -1,0 +1,4 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {assembleFlac} from '../src/flac-core.js';
+test('FLAC assembly patches STREAMINFO across chunks with full 36-bit length and MD5',()=>{const header=new Uint8Array(42);header.set([102,76,97,67,0,0,0,34]);header[21]=176;const chunks=[header.slice(0,4),header.slice(4),new Uint8Array([1,2,3])],metadata={min_framesize:66051,max_framesize:263430,total_samples:4294967296+33,md5sum:'00112233445566778899aabbccddeeff'};const bytes=assembleFlac(chunks,metadata);assert.deepEqual([...bytes.slice(12,18)],[1,2,3,4,5,6]);assert.equal(bytes[21],177);assert.equal(new DataView(bytes.buffer).getUint32(22,false),33);assert.deepEqual([...bytes.slice(26,42)],Array.from({length:16},(_,i)=>i*17));assert.equal(chunks[1][17],176);assert.deepEqual([...bytes.slice(-3)],[1,2,3]);assert.throws(()=>assembleFlac([new Uint8Array(42)]),/header/);});

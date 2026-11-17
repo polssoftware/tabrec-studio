@@ -1,0 +1,1 @@
+export function applyEqAudition(mix,selection={}){for(const graph of Object.values(mix?.map||{}))for(const [id,node]of Object.entries(graph.eqNodes||{})){const param=node.parameters?.get('soloBand');if(param)param.value=selection[id]||0;}}

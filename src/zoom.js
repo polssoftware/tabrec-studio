@@ -1,0 +1,1 @@
+export const ZOOM_DEFAULT=56,ZOOM_MIN=14,ZOOM_MAX=336;
