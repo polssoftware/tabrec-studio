@@ -18,5 +18,6 @@ Online Demo: https://tabrecstudio.pages.dev (Uses free Cloudflare host)
 (You can view this page on mobile browser to record on mobile, mobile GUI is WIP)  
 (This online demo will be updated in version equal to the release but it will not be maintained in server hosting, etc)  
 
-![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/tbs-screenshot%20(2).png)
-![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/tbs-screenshot%20(1).png)
+![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/trs-screenshot%20(1).jpg)
+![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/trs-screenshot%20(2).jpg)
+![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/trs-screenshot%20(3).jpg)
