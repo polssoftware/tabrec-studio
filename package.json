@@ -9,7 +9,7 @@
     "test": "node --test tests/*.test.js",
     "start": "node server.mjs",
     "preview": "node server.mjs",
-    "test:ui": "vite build --ssr src/main.jsx --outDir .checks/ssr && node tests/ui.mjs && node tests/transport-ui.mjs && node tests/session-ui.mjs && node tests/demo-ui.mjs && node tests/advanced-ui.mjs && node tests/expanded-ui.mjs",
+    "test:ui": "vite build --ssr src/main.jsx --outDir .checks/ssr && node tests/ui.mjs && node tests/transport-ui.mjs && node tests/session-ui.mjs && node tests/demo-ui.mjs && node tests/advanced-ui.mjs && node tests/expanded-ui.mjs && node tests/mixer-render-ui.mjs",
     "test:codecs": "vite build && node tests/codecs.mjs && node --experimental-vm-modules tests/bundled-export.mjs",
     "test:mobile": "vite build --ssr src/main.jsx --outDir .checks/ssr && node tests/mobile-ui.mjs"
   },

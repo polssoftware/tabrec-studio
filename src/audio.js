@@ -1,10 +1,11 @@
+import {MAX_TRACKS} from './project-limits.js';
 import {STUDIO_EFFECTS} from './studio-effects.js';
 import {extraDefaults,extraRanges,tuningMask} from './effect-parameters.js';
 import {createStereoMatrix,stereoAutomationBindings} from './channel-stereo.js';
 import {validateRouting} from './routing.js';
 import {pickTrackColor} from './editing.js';
 export const defaults = () => ({...extraDefaults(),eq:false,bass:0,mid:0,treble:0,compressor:false,threshold:-24,ratio:4,attack:10,release:180,gate:false,gateThreshold:-45,reverb:false,size:0.7,decay:2,mix:20,delay:false,time:250,feedback:30,delayMix:20});
-export const makeTrack = (n,tracks=[]) => ({id:crypto.randomUUID(),name:`Track ${String(n).padStart(2,'0')}`,volume:1,pan:0,mute:false,solo:false,color:pickTrackColor(tracks),automation:{},collapsed:false,output:'master',effects:[],fx:defaults()});
+export const makeTrack = (n,tracks=[]) => ({id:crypto.randomUUID(),name:`Track ${String(n).padStart(2,'0')}`,volume:1,pan:0,mute:false,solo:false,color:pickTrackColor(tracks),automation:{},collapsed:false,mixerTarget:'master',output:'master',effects:[],fx:defaults()});
 export function wav(buffer) {
   const channels=buffer.numberOfChannels, length=buffer.length, out=new ArrayBuffer(44+length*channels*2), v=new DataView(out);
   const str=(p,s)=>{for(let i=0;i<s.length;i++)v.setUint8(p+i,s.charCodeAt(i));};
@@ -20,7 +21,7 @@ export function validateEffects(effects){
  return effects;
 }
 export function validateProject(p){
-  if(p?.format!=='bdaw'||p.version!==1||!Array.isArray(p.tracks)||p.tracks.length>16||!Array.isArray(p.clips)||!Array.isArray(p.assets))throw Error('This is not a supported .trstudio project.');
+  if(p?.format!=='bdaw'||p.version!==1||!Array.isArray(p.tracks)||p.tracks.length>MAX_TRACKS||!Array.isArray(p.clips)||!Array.isArray(p.assets))throw Error('This is not a supported .trstudio project.');
   if(!Number.isFinite(p.master)||p.master<0||p.master>1.5||!Number.isFinite(p.bpm)||p.bpm<30||p.bpm>300||typeof p.name!=='string')throw Error('The project contains invalid master or tempo settings.');
   if(p.statistics!==undefined){const stats=p.statistics;if(!stats||typeof stats!=='object'||(stats.createdAt!==null&&(!Number.isFinite(stats.createdAt)||stats.createdAt<0))||['openMs','workMs','recordings','saves','copies'].some(key=>!Number.isFinite(stats[key])||stats[key]<0)||['recordings','saves','copies'].some(key=>!Number.isSafeInteger(stats[key])))throw Error('Invalid project statistics');}
   for(const t of p.tracks)if(t.locked!==undefined&&typeof t.locked!=='boolean')throw Error('Invalid track lock');
@@ -34,7 +35,11 @@ export function validateProject(p){
   if(!Array.isArray(buses)||buses.length>8)throw Error('Invalid bus channels');
   const busIds=new Set(buses.map(b=>b.id));
   if(busIds.size!==buses.length||busIds.has('master'))throw Error('Duplicate or reserved bus identifier');
-  const channels=[...p.tracks,...buses];
+  const mixers=p.mixerChannels||[];
+  if(!Array.isArray(mixers)||mixers.length>MAX_TRACKS||mixers.some(c=>c.kind!=='mixer'||!Number.isInteger(c.mixerIndex)||c.mixerIndex<1||c.mixerIndex>MAX_TRACKS)||new Set(mixers.map(c=>c.mixerIndex)).size!==mixers.length)throw Error('Invalid mixer channels');
+  const mixerIds=new Set(mixers.map(c=>c.id));
+  for(const t of p.tracks)if(t.mixerTarget!==undefined&&(typeof t.mixerTarget!=='string'||t.mixerTarget!=='master'&&!mixerIds.has(t.mixerTarget)))throw Error('Missing mixer target');
+  const channels=[...p.tracks,...mixers,...buses];
   const channelIds=new Set(channels.map(t=>t.id));
   if(channelIds.size!==channels.length||channelIds.has('master'))throw Error('Duplicate or reserved channel identifier');
   for(const t of channels){if(t.outputMaster!==undefined&&typeof t.outputMaster!=='boolean')throw Error('Invalid output routing mode');if(typeof t.name!=='string'||typeof t.id!=='string'||!Number.isFinite(t.volume)||t.volume<0||t.volume>2||!Number.isFinite(t.pan)||Math.abs(t.pan)>1)throw Error('Invalid mixer channel');if(t.effects)validateEffects(t.effects);}

@@ -51,5 +51,12 @@ await click('Play');const runningSources=sourcesPlayed;
 await act(async()=>root.findByProps({'aria-label':'Select EQ band 4'}).props.onContextMenu({preventDefault(){},stopPropagation(){},clientX:500,clientY:200,currentTarget:{}}));
 for(const value of [500,1200,2300,6000])await act(async()=>root.findByProps({'aria-label':'EQ band frequency'}).props.onKeyDown({key:value%2?'Home':'End',preventDefault(){}}));
 assert.equal(sourcesPlayed,runningSources,'frequency edits must never restart playback');assert.ok(button('Pause'));await click('Stop');
+// One microphone capture writes synchronized independent clips on every armed track.
+if(button('Record').props['aria-pressed'])await click('Record');
+await act(async()=>root.findAllByType('button').find(b=>b.children.includes('Add Track')).props.onClick());
+const arms=()=>root.findAllByType('button').filter(b=>b.props.title==='Select for recording');
+await act(async()=>arms()[0].props.onClick({stopPropagation(){}}));await act(async()=>arms()[1].props.onClick({ctrlKey:true,stopPropagation(){}}));assert.ok(arms().slice(0,2).every(b=>b.props['aria-pressed']));
+const beforeMulti=clips().map(c=>c.props['data-clip-id']);await click('Record');await click('Play');const capture=recorders.at(-1);await act(async()=>capture.port.onmessage({data:{channels:[new Float32Array(12000).fill(.2),new Float32Array(12000).fill(.2)]}}));await click('Stop');
+const recorded=clips().filter(c=>!beforeMulti.includes(c.props['data-clip-id']));assert.equal(recorded.length,2);await click('Undo');assert.deepEqual(clips().map(c=>c.props['data-clip-id']),beforeMulti);await click('Redo');assert.equal(clips().filter(c=>!beforeMulti.includes(c.props['data-clip-id'])).length,2);
 await act(async()=>app.unmount());
 console.log('Transport checks passed: existing-clip playback and recording with browser-constrained splitters, arm before play, count-in cancellation, frame-aligned capture, overwrite without layering, take undo/redo, red timer and auto-scroll.');

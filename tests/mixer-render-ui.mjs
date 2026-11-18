@@ -1,0 +1,13 @@
+import React from 'react';
+import {create,act} from 'react-test-renderer';
+import assert from 'node:assert/strict';
+import {MixerStrip} from '../.checks/ssr/main.js';
+globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+let reads=0,oldCalls=0,newCalls=0;const ch={id:'insert',get name(){reads++;return 'Mixer 01';},effects:[],volume:1,pan:0,mixerIndex:1,output:'master'},context={current:{setSelected(){oldCalls++;},setCollapsed(){},changeTrack(){},soloMixerChannel(){},deleteMixerChannel(){},deleteBus(){}}},props={ch,i:1,context,volume:1,pan:0,separation:0,left:0,right:0,selected:false,dimmed:false,recording:false,options:[{id:'master',name:'Master'}]};let app;
+await act(async()=>{app=create(React.createElement(MixerStrip,props));});const initial=reads;
+for(let frame=0;frame<30;frame++)await act(async()=>app.update(React.createElement(MixerStrip,{...props})));
+assert.equal(reads,initial,'unchanged channels must skip all strip rendering across transport frames');context.current={...context.current,setSelected(){newCalls++;}};
+await act(async()=>app.root.findByProps({className:'channel-name'}).props.onClick());assert.equal(oldCalls,0);assert.equal(newCalls,1,'cached event handlers must call current actions');
+await act(async()=>app.update(React.createElement(MixerStrip,{...props,left:.5,volume:.5})));
+assert.ok(reads>initial);assert.equal(app.root.findByProps({'data-side':'left'}).props.style.height,'50%');assert.equal(app.root.findByProps({'aria-label':'Mixer 01 mixer volume'}).props.value,.5);
+await act(async()=>app.unmount());console.log('Mixer performance checks passed: 30 unchanged frames skip strip renders, values update, and cached handlers use current actions.');

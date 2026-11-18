@@ -11,7 +11,7 @@ export function sliceRegion(clip,from,to,id=crypto.randomUUID()){
 export function replaceRecording(clips,recorded){
  const end=recorded.start+recorded.duration,next=[];for(const clip of clips){if(clip.track!==recorded.track||clip.start>=end||clip.start+clip.duration<=recorded.start){next.push(clip);continue;}if(clip.start<recorded.start)next.push(sliceRegion(clip,0,recorded.start-clip.start,clip.id));if(clip.start+clip.duration>end)next.push(sliceRegion(clip,end-clip.start,clip.duration));}return [...next,recorded];
 }
-export function soloChannel(state,id){const target=[...state.tracks,...(state.buses||[])].find(t=>t.id===id);if(!target)return state;const enabled=!target.solo;return {...state,tracks:state.tracks.map(t=>({...t,solo:enabled&&t.id===id})),buses:(state.buses||[]).map(t=>({...t,solo:enabled&&t.id===id}))};}
+export function soloChannel(state,id){const target=[...state.tracks,...(state.mixerChannels||[]),...(state.buses||[])].find(t=>t.id===id);if(!target)return state;const enabled=!target.solo;return {...state,tracks:state.tracks.map(t=>({...t,solo:enabled&&t.id===id})),buses:(state.buses||[]).map(t=>({...t,solo:enabled&&t.id===id})),...(state.mixerChannels?{mixerChannels:state.mixerChannels.map(t=>({...t,solo:enabled&&t.id===id}))}:{})};}
 export function audibleRegions(channels,sr,options={}){
  const size=channels[0]?.length||0,frame=Math.max(1,Math.round(sr*.005)),minimum=Math.max(frame,Math.round(sr*(options.minimumMs??500)/1000)),pad=Math.round(sr*(options.retainMs??100)/1000),threshold=10**((options.threshold??-45)/20),cuts=[];let silent=-1;
  const gain=options.gain??1,clip={duration:size/sr,fadeIn:options.fadeIn||0,fadeOut:options.fadeOut||0};
