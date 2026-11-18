@@ -15,5 +15,8 @@ Installation:
 Extract this entire ZIP into its own folder, then double-click Start-DAW.cmd. Node.js 20+ is required; npm install is not needed to run the included dist folder. The launcher starts at http://localhost:5174 (or the next free port), and opens the browser only after the server is ready. Keep the server window open. This avoids accidentally opening an older DAW still running on port 5173.
 
 Online Demo: https://tabrecstudio.pages.dev (Uses free Cloudflare host)  
-(You can view this page on mobile browser to record on mobile)  
+(You can view this page on mobile browser to record on mobile, mobile GUI is WIP)  
 (This online demo will be updated in version equal to the release but it will not be maintained in server hosting, etc)  
+
+![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/tbs-screenshot%20(2).png)
+![](https://raw.githubusercontent.com/polssoftware/tabrec-studio/refs/heads/main/tbs-screenshot%20(1).png)
