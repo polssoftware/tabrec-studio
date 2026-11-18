@@ -626,3 +626,7 @@ header .project-title{width:300px;grid-template-columns:minmax(0,1fr);max-width:
 .header-alpha-warning{display:flex;align-items:center;gap:7px;max-width:290px;font-size:10px;line-height:1.45;color:var(--muted);margin-left:6px}.header-alpha-warning>svg{flex:0 0 15px;color:var(--danger)}.transport .center-transport>.quick-retake{justify-content:center;min-width:75px;padding:4px 8px;white-space:nowrap;box-sizing:border-box}.quick-retake>svg{flex-shrink:0;display:block}.quick-retake>span{line-height:1}
 @media(max-width:1000px){header{flex-wrap:wrap}.header-alpha-warning{max-width:220px;font-size:9px}}
 @media(max-width:650px){header .studio-brand{flex-wrap:wrap;flex:1 1 100%}.header-alpha-warning{max-width:none;flex:1;font-size:9px}}
+
+.about-modal a.online-link,.about-modal a.source-download{display:flex;align-items:center;gap:10px;padding:11px;width:100%;border:1px solid var(--line);border-radius:5px;background:var(--control);color:var(--text);text-decoration:none;text-align:left}.about-modal a.online-link:hover,.about-modal a.source-download:hover{background:var(--hover)}
+
+.transport .tempo-tools .key-control{width:118px}.transport .tempo-tools .key-control>button{height:30px;font-size:9px;padding:4px 6px}

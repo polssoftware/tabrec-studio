@@ -1,7 +1,6 @@
 # Release downloads
 
-- **Tabrec-Studio-Release.zip**: compiled default application with desktop and mobile layouts. Extract and run Start-DAW.cmd on Windows with Node.js installed, or upload the contents of dist/ to a static HTTPS host.
-- **Tabrec-Studio-Source.zip**: source code, dependency lockfile, tests, assets and build instructions. Run npm ci, then npm run build to create dist/.
+- **Tabrec-Studio-Release.zip**: compiled default application and editable source with desktop and mobile layouts. Extract and run Start-DAW.cmd on Windows with Node.js installed, or upload the contents of dist/ to a static HTTPS host.
 
 Only Demo 1 is included. It synthesizes its audio locally; no demo audio recordings are bundled.
 
@@ -17,9 +16,11 @@ On Android, open the deployed HTTPS website in Chrome. Small phone screens use t
 2. Importing a beat creates an empty Lead track ready for vocals.
 3. Tap the red Record button, allow microphone access, then tap it again to finish. Mobile recording begins directly; desktop recording retains arm-then-play behavior.
 4. Drag waveform clips to move them. Tap the timeline to place the playhead, select a clip, then use Split, Duplicate or Delete. Use the zoom buttons for finer edits. Scroll the playlist on empty lane space or the track list.
+Tapping or focusing the playlist hides the bottom controls for more editing space. Tap the bottom bar with the centered arrow to show or hide recording and editing controls. Menus overlay the controls.
+
 5. Tap FX on a track, or Effects below the playlist, to add and adjust plugins. Tap Effects again to close. Mixer opens separately and is closed by default.
 
-Audio and project processing stay on your device. Projects remain compatible with the original `.bdaw` format. Microphone recording requires HTTPS on a public website (or localhost for local desktop use). The Windows launcher starts a local server; Android visitors use the hosted URL directly.
+Audio and project processing stay on your device. Projects save as `.trstudio`; effect presets save as `.trpreset`. Older `.bdaw` projects and `.bfx` presets can still be opened. Microphone recording requires HTTPS on a public website (or localhost for local desktop use). The Windows launcher starts a local server; Android visitors use the hosted URL directly.
 
 `dist/` is the precompiled hosting build. For Cloudflare Pages with a GitHub connection, use `npm run build` and output directory `dist`. See DEPLOY.md for hosting instructions.
 
@@ -85,17 +86,17 @@ Midnight mode follows Light mode and uses #000000 for its background and panel s
 
 ## Parallel mixer routing
 
-The routing popup offers individual destination checkboxes. Route only sends the channel to the chosen destination. Track + Master additionally sends that channel's post-effects, post-volume and post-pan audio directly to Master. Choosing Master itself never creates a duplicate Master connection. The selected destinations are included in .bdaw files and applied to playback and renders; cables show both destinations. Muting the destination leaves the direct Master branch active; soloing a receiving channel suppresses the bypassing direct branch.
+The routing popup offers individual destination checkboxes. Route only sends the channel to the chosen destination. Track + Master additionally sends that channel's post-effects, post-volume and post-pan audio directly to Master. Choosing Master itself never creates a duplicate Master connection. The selected destinations are included in .trstudio files and applied to playback and renders; cables show both destinations. Muting the destination leaves the direct Master branch active; soloing a receiving channel suppresses the bypassing direct branch.
 
 Mixer dB readouts use bold text. Midnight and neutral Grey appearances are available immediately after Light mode.
 
 ## Per-channel mixer settings
 
-The settings icon below each mixer pan slider opens channel-specific controls: bypass all effects without deleting them, narrow Stereo to Mono, swap left/right outputs, and invert both channels' polarity. Stereo separation defaults to 0%; double-click its slider to restore the unchanged stereo signal. The left endpoint is shown as 100% Mono, and the right endpoint as 100% Stereo, over a -100 to +100 control range. Right-click the slider to automate separation. Mono uses the average of left and right. Width, swapping and polarity are processed after panning, before meters and routing, and affect playback, exports and frozen audio. Their defaults preserve the original signal. .bdaw files retain these settings; freeze/unfreeze preserves them without applying them twice.
+The settings icon below each mixer pan slider opens channel-specific controls: bypass all effects without deleting them, narrow Stereo to Mono, swap left/right outputs, and invert both channels' polarity. Stereo separation defaults to 0%; double-click its slider to restore the unchanged stereo signal. The left endpoint is shown as 100% Mono, and the right endpoint as 100% Stereo, over a -100 to +100 control range. Right-click the slider to automate separation. Mono uses the average of left and right. Width, swapping and polarity are processed after panning, before meters and routing, and affect playback, exports and frozen audio. Their defaults preserve the original signal. .trstudio files retain these settings; freeze/unfreeze preserves them without applying them twice.
 
 ## Multiple destinations and panel locking
 
-Routing checkboxes can send a track to several tracks or buses at once. Click Only beside a destination for an exclusive route; this also disables the additional direct Master send. Select Master alongside other destinations to include a direct Master branch. Routes are embedded in .bdaw projects; playback, renders and mixer cables use the full routing graph. Feedback cycles and duplicate routes are rejected, destination deletion repairs remaining routes, and solo gates individual outgoing branches.
+Routing checkboxes can send a track to several tracks or buses at once. Click Only beside a destination for an exclusive route; this also disables the additional direct Master send. Select Master alongside other destinations to include a direct Master branch. Routes are embedded in .trstudio projects; playback, renders and mixer cables use the full routing graph. Feedback cycles and duplicate routes are rejected, destination deletion repairs remaining routes, and solo gates individual outgoing branches.
 
 Below Stack/Unstack in Panel Menu, Lock Resizing / Unlock Resizing and Reset Panels share a row. Lock uses the same setting as Settings, disabling track-height, dock-height and panel-width grips. Resizing defaults unlocked. Reset Panels restores default heights and widths, side-by-side order, visible panels and tooltip, unlocked resizing, and docks any popped-out panels. The per-channel mixer settings remain available below the pan slider.
 
@@ -119,7 +120,7 @@ The main Channel Effects power button and the selected channel's mixer effects s
 - The microphone input meter sits beside the master level. It reads the recording input automatically; click it to enable or disable silent metering outside recording. It does not enable microphone monitoring.
 - Quick Retake discards the latest completed take or the capture currently in progress, restores the audio underneath it, and starts another take on the same track at the same position. Existing count-in applies. Undo restores replaced audio.
 - Track Settings includes Lock Track below Freeze. Locked tracks reject clip edits, moves, deletion, imports and recording. Snowflake and lock badges show frozen and locked states. Track duplicates use `Original title - Copy`.
-- Tools > Statistics shows track count, per-track timeline duration, project duration, completed recording count, embedded audio bytes, estimated project file size, original creation date, cumulative open/work time, saves and copies. Work time excludes hidden-window time and idle time after one minute. These statistics persist inside the .bdaw file; older files without a creation date show Unknown.
+- Tools > Statistics shows track count, per-track timeline duration, project duration, completed recording count, embedded audio bytes, estimated project file size, original creation date, cumulative open/work time, saves and copies. Work time excludes hidden-window time and idle time after one minute. These statistics persist inside the .trstudio file; older files without a creation date show Unknown.
 
 ## Development
 
@@ -160,7 +161,7 @@ Optional encoder integration check: `npm run test:codecs` (requires FFmpeg on PA
 
 The header and browser tab identify this build as ALPHA. The star logo and compact branding omit the top-bar tagline. Quick Save is beside Fullscreen; the microphone input meter and Retake sit above the tracks. Live track-header meter strips are removed; stereo mixer meters remain.
 
-Save Project as... selects a destination folder in browsers supporting the File System Access directory picker. Further Quick Save copies use that folder during the current project session, skip existing filenames, and keep the numbered copy sequence. Cancel leaves the current project and destination unchanged. Browsers without directory access use their native Save dialog when available, or a regular download; automatic folder writes are unavailable there. Folder/file handles are never embedded in .bdaw files. New/Open clears the selected project folder.
+Save Project as... selects a destination folder in browsers supporting the File System Access directory picker. Further Quick Save copies use that folder during the current project session, skip existing filenames, and keep the numbered copy sequence. Cancel leaves the current project and destination unchanged. Browsers without directory access use their native Save dialog when available, or a regular download; automatic folder writes are unavailable there. Folder/file handles are never embedded in .trstudio files. New/Open clears the selected project folder.
 
 Export offers one toggle per format, with a quality selector for each and a FLAC compression slider. WAV 24-bit remains the default; size estimates, output/stems and selection/full-song controls remain below.
 

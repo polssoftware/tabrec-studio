@@ -20,7 +20,7 @@ export function validateEffects(effects){
  return effects;
 }
 export function validateProject(p){
-  if(p?.format!=='bdaw'||p.version!==1||!Array.isArray(p.tracks)||p.tracks.length>16||!Array.isArray(p.clips)||!Array.isArray(p.assets))throw Error('This is not a supported .bdaw project.');
+  if(p?.format!=='bdaw'||p.version!==1||!Array.isArray(p.tracks)||p.tracks.length>16||!Array.isArray(p.clips)||!Array.isArray(p.assets))throw Error('This is not a supported .trstudio project.');
   if(!Number.isFinite(p.master)||p.master<0||p.master>1.5||!Number.isFinite(p.bpm)||p.bpm<30||p.bpm>300||typeof p.name!=='string')throw Error('The project contains invalid master or tempo settings.');
   if(p.statistics!==undefined){const stats=p.statistics;if(!stats||typeof stats!=='object'||(stats.createdAt!==null&&(!Number.isFinite(stats.createdAt)||stats.createdAt<0))||['openMs','workMs','recordings','saves','copies'].some(key=>!Number.isFinite(stats[key])||stats[key]<0)||['recordings','saves','copies'].some(key=>!Number.isSafeInteger(stats[key])))throw Error('Invalid project statistics');}
   for(const t of p.tracks)if(t.locked!==undefined&&typeof t.locked!=='boolean')throw Error('Invalid track lock');
