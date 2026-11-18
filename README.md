@@ -4,7 +4,7 @@ No ads or sign up needed. Download and launch to use. Or use the online demo to 
 
 ---
 
-Tabrec Studio is mostly an audio editing and recording DAW. Created for users who want to leave from a certain website with growing subscription changes. It's a simple DAW that you can quickly upload the beat from your local drive and record vocals. Tabrec Studio is not for users looking to produce or beat make.
+Tabrec Studio is mostly an audio editing and recording DAW made with AI. Created for users who want to leave from a certain website with growing subscription changes. It's a simple DAW that you can quickly upload the beat from your local drive and record vocals. Tabrec Studio is not for users looking to produce or beat make.
 
 Tested on Mozilla Firefox (Desktop & Android Mobile) and Helium (Desktop (Chrome-Fork))
 
