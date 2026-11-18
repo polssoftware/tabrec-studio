@@ -640,3 +640,7 @@ input.channel-fader::-webkit-slider-thumb{box-sizing:border-box;margin-left:-8px
 /* Keep the insert target and fold arrow on the same left-hand axis. */
 @media(min-width:701px){.track-row{padding-left:4px;padding-right:7px}.track-label{gap:4px}.track-label>button:first-child{flex:0 0 29px;width:29px}.track-controls{gap:7px;margin-left:0}.track-controls>.mixer-target{margin-left:0}.track-controls>.pan-knob{margin-left:0}}
 .mixer-settings-menu>.delete-mixer-channel{margin-top:5px;border-top:1px solid var(--line);color:var(--danger)}
+
+.about-version{font-size:11px;color:var(--muted);margin:0 0 12px 23px}
+
+.about-credits{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0}.about-credits>.about-ai,.about-credits>.about-version{margin:0}.about-credits>.about-version{margin-left:auto;white-space:nowrap;text-align:right}
